@@ -1,11 +1,19 @@
 const express = require("express");
-const app = express();
+const { twiml: { VoiceResponse } } = require("twilio");
 
-app.get("/", (req, res) => {
-  res.send("✅ Servidor Render funcionando con Node.js");
+const app = express();
+app.use(express.urlencoded({ extended: true })); // Twilio envía form-encoded
+
+// Webhook de llamadas entrantes
+app.post("/voice", (req, res) => {
+  const vr = new VoiceResponse();
+  vr.say({ language: "es-ES" }, "Hola. Tu servidor ya está conectado a Twilio. Prueba exitosa.");
+  res.type("text/xml");
+  res.send(vr.toString());
 });
+
+// Salud
+app.get("/", (_req, res) => res.send("✅ Servidor Render funcionando con Node.js"));
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log("Servidor corriendo en puerto " + port);
-});
+app.listen(port, () => console.log("Servidor en puerto", port));
